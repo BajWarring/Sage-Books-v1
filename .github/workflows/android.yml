@@ -1,40 +1,53 @@
-name: Android APK Build
+name: Build Android App
 
 on:
   push:
-  workflow_dispatch:
+    branches:
+      - main  # Or 'master', depending on your branch name
 
 jobs:
   build:
+    name: Build APK
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout Repo
+      # 1. Check out the code
+      - name: Checkout source
         uses: actions/checkout@v3
 
-      - name: Setup Node
+      # 2. Setup Node.js (for React/Vite)
+      - name: Setup Node.js
         uses: actions/setup-node@v3
         with:
           node-version: 18
 
-      - name: Install Dependencies
+      # 3. Setup Java (Required for Android Build)
+      - name: Setup Java
+        uses: actions/setup-java@v3
+        with:
+          distribution: 'zulu'
+          java-version: '17'
+
+      # 4. Install Dependencies & Build Web Assets
+      - name: Install & Build Web
         run: |
           npm install
-
-      - name: Build React App
-        run: |
           npm run build
+          npx cap sync android
 
-      - name: Setup Java & Android
-        uses: android-actions/setup-android@v2
+      # 5. Grant Execute Permissions to Gradle
+      - name: Make Gradle executable
+        run: chmod +x ./android/gradlew
 
-      - name: Build Android Release APK
+      # 6. Build the APK (Debug Version)
+      - name: Build Android APK
         run: |
           cd android
-          ./gradlew assembleRelease
+          ./gradlew assembleDebug
 
-      - name: Upload APK Artifact
+      # 7. Upload the APK to GitHub so you can download it
+      - name: Upload APK
         uses: actions/upload-artifact@v3
         with:
-          name: app-release.apk
-          path: android/app/build/outputs/apk/release/app-release.apk
+          name: sage-books-debug
+          path: android/app/build/outputs/apk/debug/app-debug.apk

@@ -1,0 +1,5 @@
+{
+  "name": "Sage Books v1",
+  "description": "A fully offline cashbook management application with a warm orange theme, featuring robust entry tracking, offline data storage, and advanced CSV import/export capabilities.",
+  "requestFramePermissions": []
+}
